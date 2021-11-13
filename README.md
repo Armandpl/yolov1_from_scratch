@@ -6,3 +6,5 @@ Game plan after skimming [Aladdin Persson yolo tutorial](https://www.youtube.com
 3. Implement loss function
 4. Implement NMS Algo
 5. Plumbing (training loop and dataloaders)
+
+[link to wandb dashboard]
