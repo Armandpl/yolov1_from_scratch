@@ -23,7 +23,7 @@ class YoloCOCO(torch.utils.data.Dataset):
         return len(self.coco)
 
     def __getitem__(self, idx):
-        img, label = self.coco.__getitem__(idx)
+        img, label = self.coco[idx]
         im_w, im_h = img.size
 
         img = self.tfms(img)
@@ -64,8 +64,9 @@ class YoloCOCO(torch.utils.data.Dataset):
                     targets_per_cell[x_idx, y_idx, class_id] = 1
                     targets_per_cell[x_idx, y_idx, -5] = 1  # probability
                     targets_per_cell[x_idx, y_idx, -4:] = \
-                        [new_center_x, new_center_y, new_w, new_h]  # bbox
+                        torch.Tensor([new_center_x, new_center_y,
+                                      new_w, new_h])
 
                     break
 
-        return img, targets_per_cell.flatten()
+        return img, targets_per_cell
