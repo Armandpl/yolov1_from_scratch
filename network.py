@@ -2,14 +2,18 @@ import torch
 import torchvision.models as models
 
 
-class Yolo(torch.nn.Module):
+class YoloNetwork(torch.nn.Module):
     def __init__(self, feature_extractor="resnet50", S=7,
                  classes=80, pretrained=True):
-        super(Yolo, self).__init__()
+        super(YoloNetwork, self).__init__()
         self.S = S
         self.classes = classes
         self.feature_extractor = \
             models.__dict__[feature_extractor](pretrained=pretrained)
+
+        # freeze feature extractor
+        # for param in self.feature_extractor.parameters():
+        #     param.requires_grad = False
 
         self.output_layer = torch.nn.Linear(
             self.feature_extractor.fc.in_features, S*S*(classes+5*2))
