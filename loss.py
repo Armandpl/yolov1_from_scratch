@@ -45,7 +45,7 @@ def IoU(box1, box2):
     y2 = torch.max(box1[..., 3], box2[..., 3])
     union = area(x1, y1, x2, y2)
 
-    return intersection/union
+    return torch.nan_to_num(intersection/union, nan=0.0)
 
 
 class YoloLoss(torch.nn.Module):
@@ -78,16 +78,23 @@ class YoloLoss(torch.nn.Module):
 
         coords_loss_box_1 =\
             self.loss(predictions[..., -4:-2], target[..., -4:-2]) +\
-            self.loss(torch.sqrt(predictions[..., -2:]),
-                      torch.sqrt(target[..., -2:]))
+            torch.nan_to_num(
+                self.loss(torch.sqrt(predictions[..., -2:]),
+                          torch.sqrt(target[..., -2:])),
+                nan=0.0
+            )
 
         coords_loss_box_1 = torch.sum(coords_loss_box_1, dim=-1) *\
             ious_idx_box_1
 
         coords_loss_box_2 =\
             self.loss(predictions[..., -9:-7], target[..., -4:-2]) +\
-            self.loss(torch.sqrt(predictions[..., -7:-5]),
-                      torch.sqrt(target[..., -2:]))
+            torch.nan_to_num(
+                self.loss(torch.sqrt(predictions[..., -7:-5]),
+                          torch.sqrt(target[..., -2:])),
+                nan=0.0
+            )
+
         coords_loss_box_2 = torch.sum(coords_loss_box_2, dim=-1) *\
             ious_idx_box_2
 
@@ -117,4 +124,6 @@ class YoloLoss(torch.nn.Module):
             ) * obj
         classes_loss = torch.sum(classes_loss, dim=(1, 2))
 
-        return coords_loss + obj_loss + noobj_loss + classes_loss
+        loss = coords_loss + obj_loss + noobj_loss + classes_loss
+        # print(coords_loss, obj_loss, noobj_loss, classes_loss)
+        return torch.sum(loss)
