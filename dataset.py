@@ -34,6 +34,9 @@ class YoloCOCO(torch.utils.data.Dataset):
 
         # iterate over bboxes
         for bbox, class_id in bboxes:
+            if class_id > 80:
+                # TODO: check that's not an issue.
+                continue
             top_left_x, top_left_y, width, height = bbox
             center_x, center_y = \
                 top_left_x + width/2, top_left_y + height/2
@@ -69,4 +72,4 @@ class YoloCOCO(torch.utils.data.Dataset):
 
                     break
 
-        return img, targets_per_cell
+        return img.to(torch.float32), targets_per_cell
