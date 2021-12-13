@@ -15,7 +15,8 @@ class YoloCOCO(torch.utils.data.Dataset):
         self.S = S
 
         self.tfms = transforms.Compose([
-                transforms.PILToTensor(),
+                # transforms.PILToTensor(),
+                transforms.ToTensor(),
                 transforms.Resize((224, 224)),
                 ])
 
@@ -72,4 +73,4 @@ class YoloCOCO(torch.utils.data.Dataset):
 
                     break
 
-        return img.to(torch.float32), targets_per_cell
+        return img, targets_per_cell
