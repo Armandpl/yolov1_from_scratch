@@ -27,8 +27,8 @@ class Yolo(pl.LightningModule):
         self.model = YoloNetwork()
         self.model.feature_extractor.train(False)
 
-        for param in self.model.feature_extractor.parameters():
-            param.requires_grad = False
+        # for param in self.model.feature_extractor.parameters():
+        #    param.requires_grad = False
 
         self.loss = YoloLoss()
 
@@ -38,22 +38,31 @@ class Yolo(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         images, targets = batch
         preds = self.forward(images)
-        loss = self.loss(preds, targets)
+        coords_loss, obj_loss, noobj_loss, classes_loss = self.loss(preds, targets)
+        loss = coords_loss + obj_loss + noobj_loss + classes_loss
 
         # metrics = self.train_metrics(preds, targets)
-        self.log_dict({"train/loss": loss}, on_step=True, on_epoch=False)
+        self.log_dict({
+            "train/loss": loss,
+            "train/coords_loss": coords_loss,
+            "train/obj_loss": obj_loss,
+            "train/noobj_loss": noobj_loss,
+            "train/classes_loss": classes_loss
+            }, on_step=True, on_epoch=False)
 
         return loss
 
     def on_train_epoch_end(self):
-        print("setting fe back to train mode")
-        for param in self.model.feature_extractor.parameters():
-            param.requires_grad = True
+        # print("setting fe back to train mode")
+        # for param in self.model.feature_extractor.parameters():
+        #     param.requires_grad = True
+        pass
 
     def validation_step(self, batch, batch_idx):
         images, targets = batch
         preds = self.forward(images)
-        loss = self.loss(preds, targets)
+        coords_loss, obj_loss, noobj_loss, classes_loss = self.loss(preds, targets)
+        loss = coords_loss + obj_loss + noobj_loss + classes_loss
 
         # metrics = self.valid_metrics(preds, targets)
         self.log_dict({"val/loss": loss}, on_step=False, on_epoch=True)
@@ -92,9 +101,9 @@ if __name__ == "__main__":
         epochs=10,
         architecture="resnet50",
         batch_size=128,
-        learning_rate=1e-3
+        learning_rate=1e-2
     )
-    with wandb.init(project="yolov1", config=config, job_type="train") as run:
+    with wandb.init(project="yolov1", config=config, job_type="debug") as run:
         config = run.config
 
         dm = YoloDataModule(config.batch_size)
