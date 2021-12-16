@@ -8,11 +8,12 @@ import torch
 class YoloCOCO(torch.utils.data.Dataset):
     def __init__(self, root="./data/train2017",
                  annFile="./data/annotations/instances_train2017.json",
-                 n_classes=80, S=7):
+                 n_classes=91, S=7, augs=False):
 
         self.coco = dsets.CocoDetection(root=root, annFile=annFile)
         self.n_classes = n_classes
         self.S = S
+        self.augs = augs
 
         self.tfms = transforms.Compose([
                 # transforms.PILToTensor(),
@@ -33,9 +34,13 @@ class YoloCOCO(torch.utils.data.Dataset):
         targets_per_cell = torch.zeros((self.S, self.S, self.n_classes + 5))
         bboxes = [(x["bbox"], x["category_id"]) for x in label]
 
+        # augmentations
+
+
         # iterate over bboxes
         for bbox, class_id in bboxes:
-            if class_id > 80:
+            class_id = class_id - 1
+            if class_id > 91:
                 # TODO: check that's not an issue.
                 continue
             top_left_x, top_left_y, width, height = bbox
@@ -74,3 +79,9 @@ class YoloCOCO(torch.utils.data.Dataset):
                     break
 
         return img, targets_per_cell
+
+
+if __name__ == "__main__":
+    dset = YoloCOCO()
+    img, label = dset.coco[0]
+    print(label)
