@@ -7,4 +7,4 @@ Game plan after skimming [Aladdin Persson yolo tutorial](https://www.youtube.com
 4. Implement NMS Algo
 5. Plumbing (training loop and dataloaders)
 
-[link to wandb dashboard]
+[wandb dashboard](https://wandb.ai/armandpl/yolov1/runs/18xh4vgy?workspace=user-armandpl)
